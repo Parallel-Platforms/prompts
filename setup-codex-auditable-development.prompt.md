@@ -9,20 +9,27 @@
 ## Prompt
 
 I want to implement **Codex Auditable Development (CAD)** in
-this project. Codices are plain-language policy documents
-that define system rules. They serve as the canonical source
-of truth for how the application behaves.
+this project. Codices are plain-language documents that
+describe how the code currently works — its logic, behavior,
+and business rules. They help product teams understand the
+actual system behavior (good, bad, and ugly) without reading
+code.
 
 ### Core Principles
 
-1. **Codices are the source of truth** — If code and codex
-   disagree, the codex is correct
-2. **Product owns codices; engineering enforces them**
-3. **Codices define rules, not implementations**
-4. **Written for humans** — Product managers, designers, and
-   engineers can all read them
-5. **BDD scenarios validate behavior** — Given/When/Then
-   format for testable rules
+1. **Code is the source of truth** — Codices document what
+   the code actually does, not what we wish it did
+2. **If code and codex disagree, update the codex** — The
+   codex must reflect current system behavior
+3. **Engineering owns codices; product consumes them** —
+   Engineers maintain accuracy, product gains visibility
+4. **Written for product people** — Use plain business
+   language that PMs, designers, and stakeholders can read
+   without technical context
+5. **No technical content** — No code, no implementation
+   details, no technical jargon
+6. **Gherkin scenarios validate behavior** — Formal
+   Given/When/Then syntax for testable rules
 
 ### What I Need You To Do
 
@@ -46,7 +53,7 @@ of truth for how the application behaves.
 
 3. **Write codices** using this standard format:
 
-   ```markdown
+   ````markdown
    # [Topic] Rules
 
    > [One-line description of what this codex covers.]
@@ -62,11 +69,16 @@ of truth for how the application behaves.
 
    ## Scenarios
 
-   ### Scenario: [Descriptive name]
+   ```gherkin
+   Scenario: [Descriptive name]
+     Given [precondition]
+     When [action]
+     Then [expected outcome]
+   ```
+   ````
 
-   - **Given** [precondition]
-   - **When** [action]
-   - **Then** [expected outcome]
+   ```
+
    ```
 
 4. **Update AGENTS.md** (or create one) with:
@@ -83,8 +95,11 @@ of truth for how the application behaves.
 - **Title:** Always ends with "Rules" (e.g., "Login Rules")
 - **Intro:** One-line blockquote starting with "Defines..."
 - **Rules section:** Numbered list — the core policies
-- **Scenarios:** BDD-style Given/When/Then at the end
-- **No code blocks:** Use plain language
+- **Scenarios:** Gherkin syntax in fenced code blocks
+- **Plain business language only:** No code, no technical
+  jargon, no implementation details
+- **Audience is product people:** Write so PMs, designers,
+  and stakeholders understand without engineering context
 - **Tables:** Use for permissions, statuses, field
   requirements
 - **Cardinal rules:** Use `> ⚠️` callout for critical
@@ -107,31 +122,37 @@ Do NOT create codices for:
 - One-off experiments
 - Internal refactors
 - Implementation details (those go in docs/)
+- Technical specifications or architecture decisions
+- Code patterns or engineering standards
+- API contracts or data schemas
 
-### Policy Protection Rules
+### Codex Maintenance Rules
 
-Add these to AGENTS.md to prevent accidental codex edits:
+Add these to AGENTS.md to keep codices in sync with code:
 
 ```markdown
-### ⛔ Policy Protection Rules
+### ⛔ Codex Maintenance Rules
 
-**Codices are protected documents.** Do NOT modify them
-during normal feature work or bug fixes.
+**Codices must accurately reflect the code.** Keep them in
+sync with actual system behavior.
 
-1. **Never edit codex files** unless the user explicitly
-   requests a "policy change" or "update the codex"
-2. **If code contradicts a codex**, fix the CODE not the
-   codex - then flag the discrepancy to the user
-3. **If a feature requires a policy change**, STOP and ask:
-   > "This would require changing the policy in
-   > `[codex-file]`. Do you want to update the policy?"
-4. **Wait for explicit confirmation** before modifying any
-   `.codex.md` file
+1. **When code changes, update the codex** — After modifying
+   behavior, update the relevant codex to match
+2. **If code contradicts a codex**, update the CODEX to
+   reflect what the code actually does — then flag the
+   discrepancy to product
+3. **Before changing behavior**, check if a codex documents
+   it and notify the user:
+   > "This change affects behavior documented in
+   > `[codex-file]`. I'll update the codex to reflect the
+   > new behavior."
+4. **Codices are documentation, not policy** — They describe
+   reality, not aspirations
 ```
 
 ### Example Codex
 
-```markdown
+````markdown
 # Password Rules
 
 > Defines password requirements and reset policies.
@@ -155,18 +176,20 @@ during normal feature work or bug fixes.
 
 ## Scenarios
 
-### Scenario: Password too short
+```gherkin
+Scenario: Password too short
+  Given a user enters a password shorter than 8 characters
+  When the form is submitted
+  Then the system shows "Password must be at least 8 characters"
 
-- **Given** user enters "Pass1!"
-- **When** form is validated
-- **Then** error: "Password must be at least 8 characters"
+Scenario: Account lockout after failed attempts
+  Given a user has failed login 4 times
+  When the user fails login a 5th time
+  Then the account is locked for 30 minutes
+  And an email notification is sent to the user
+```
+````
 
-### Scenario: Account lockout
-
-- **Given** user has failed login 4 times
-- **When** user fails login a 5th time
-- **Then** account is locked for 30 minutes
-- **And** email notification sent to user
 ```
 
 ---
@@ -181,3 +204,4 @@ Please analyze my codebase and:
 4. Create the codices one domain at a time
 
 Let's begin!
+```
